@@ -1,12 +1,6 @@
 import numpy as np
 
 
-def isnumber(x):
-    if type(x) in [float, np.float16, np.float32, np.float64, np.float, np.float, int, np.int, np.int32, np.int64,
-                   np.uint32, np.uint64, np.int16, np.uint16, np.int8, np.uint8]:
-        return True
-    return False
-
 FLOAT = np.float64
 
 
@@ -26,8 +20,6 @@ class Vector:
                 self.v = np.array(args[0]).astype(FLOAT)
             elif isnumber(args[0]):
                 self.v = np.array([args[0]]).astype(FLOAT)
-            else:
-                raise TypeError("Single argument must be 'np.ndarray', 'list', 'tuple' or number not %s" % (type(args[0]),))
         elif len(args) > 1:
             self.v = np.zeros(len(args), FLOAT)
             for i in range(len(args)):

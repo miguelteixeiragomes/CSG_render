@@ -29,10 +29,27 @@ class Vectors:
         return Vectors(+self.vec)
 
     def __add__(self, vect):
-        return Vectors(self.vec + vect.vec)
+        if isinstance(vect, Vectors):
+            return Vectors(self.vec + vect.vec)
+        if len(vect) != 3:
+            raise ValueError("The single vector must be in 3 dimensions." % (len(vect),))
+        new = np.zeros(self.vec.shape, self.vec.dtype)
+        new[:] = self.vec[:]
+        new = np.swapaxes(new, -1, 0)
+        new[0] += vect[0]
+        new[1] += vect[1]
+        new[2] += vect[2]
+        new = np.swapaxes(new, 0, -1)
+        return Vectors(new)
+
+    def __radd__(self, vect):
+        return self + vect
 
     def __sub__(self, vect):
-        return Vectors(self.vec - vect.vec)
+        return self + -vect
+
+    def __rsub__(self, vect):
+        return -self + vect
 
     def __mul__(self, vect):
         if isinstance(vect, Vectors):
@@ -40,10 +57,14 @@ class Vectors:
             b = np.swapaxes(vect.vec, -1, 0)
             return np.swapaxes(a[0]*b[0] + a[1]*b[1] + a[2]*b[2], -1, 0)
         if isinstance(vect, np.ndarray):
-            if self.vec.shape[:-1] != vect.shape:
-                raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.vec.shape[:-1]), str(vect.shape)))
-            a = np.swapaxes(self.vec, -1, 0)
-            return a[0]*vect + a[1]*vect + a[2]*vect
+            if self.vec.shape[:-1] == vect.shape:
+                a = np.swapaxes(self.vec, -1, 0)
+                return a[0]*vect + a[1]*vect + a[2]*vect
+            if len(vect.shape) == 1 and vect.shape[0] == 3:
+                a = np.swapaxes(self.vec, -1, 0)
+                return a[0]*vect[0] + a[1]*vect[1] + a[2]*vect[2]
+            raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.vec.shape[:-1]), str(vect.shape)))
+        if type(vect)
         return Vectors(self.vec * vect)
 
     def __rmul__(self, vect):

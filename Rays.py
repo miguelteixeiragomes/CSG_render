@@ -19,7 +19,7 @@ class Rays:
         self.shape = origins.shape[:]
 
     def __str__(self):
-        return "Rays: %s[n] + d*%s[n], d > 0, n as all indexes" % (str(self.origins), str(self.directions))
+        return "Rays: %s[n] + d*%s[n], d > 0, n as all indices" % (str(self.origins), str(self.directions))
 
     def __repr__(self):
         return str(self)

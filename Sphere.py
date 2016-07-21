@@ -1,34 +1,31 @@
-from Ray import Ray
-from Vector import Vector, isnumber, np
+from Rays import Rays
+from Vectors import Vectors, np
 
 
 class Sphere:
-    def __init__(self, center, radius):
-        if not isinstance(center, Vector):
-            raise TypeError("The 'center' argument must be of class 'Vector' not %s." % (type(center),))
-        if not isnumber(radius):
-            raise TypeError("The 'center' argument must be of a number not %s." % (type(radius),))
-        if radius == 0:
-            raise ValueError("The 'radius' of the sphere cannot be 0.")
-        self.center = center
-        self.radius = radius
-        self.dim = center.dim
+    def __init__(self, centers, radii):
+        if not isinstance(centers, Vectors):
+            raise TypeError("The 'centers' argument must be of class 'Vectors' not %s." % (type(center),))
+        if centers.shape != radii.shape:
+            raise ValueError("Dimensional mismatch for shapes %d & %d" % (centers.shape, radii.shape))
+        if np.sum(1*(radii <= 0)) > 0:
+            raise ValueError("All 'radii' must be greater than 0.")
+        self.centers = centers
+        self.radii = radii
+        self.shape = centers.shape[:]
 
     def __str__(self):
-        return 'sphere: |r - %s| < %s' % (str(self.center), str(self.radius))
+        return 'sphere: |r - %s[n]| < %s[n], n as all indices' % (str(self.center), str(self.radius))
 
     def __repr__(self):
         return str(self)
 
-    def intersectionWithRay(self, ray):
-        if not isinstance(ray, Ray):
-            raise TypeError("Intersections must be with objects of type 'Ray' not %s" % (type(ray),))
-        if self.dim != ray.dim:
-            ValueError("Dimensional mismatch for 'Sphere' in %d dimensions and 'Ray' in %d dimensions." % (
-            self.dim, ray.dim))
+    def intersectionWithRays(self, rays):
+        if not isinstance(rays, Rays):
+            raise TypeError("Intersections must be with objects of type 'Rays' not %s" % (type(rays),))
 
-        o_c = ray.start - self.center
-        lo_c = ray.direction * o_c
+        o_c = rays.origins - self.center
+        lo_c = rays.direction * o_c
         abs2l = ray.direction.abs2()
         b2_4ac = lo_c*lo_c - abs2l*(o_c.abs2() - self.radius*self.radius)
         if b2_4ac < 0:
