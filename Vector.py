@@ -1,5 +1,5 @@
 import numpy as np
-from Vectors import Vectors
+#from Vector_Vectors import Vector, Vectors
 
 
 class Vector:
@@ -14,7 +14,7 @@ class Vector:
                 self.y = args[0][1]
                 self.z = args[0][2]
             except:
-                raise TypeError("The single argument must have __getitem__ method.")
+                raise TypeError("The single argument must have '__getitem__' method.")
         else:
             raise AttributeError("'Vector' must be initiated with 1 or 3 arguments not %d" % (len(args),))
 

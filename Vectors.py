@@ -1,5 +1,6 @@
-import numpy as np
+#from Vector_Vectors import Vector, Vectors
 from Vector import Vector
+import numpy as np
 
 
 FLOAT = np.float64
@@ -7,16 +8,24 @@ FLOAT = np.float64
 
 class Vectors:
     def __init__(self, vec):
-        if not isinstance(vec, np.ndarray):
-            if not (type(vec) == list or type(vec) == tuple):
-                raise TypeError("Argument must be 'ndarray', list or tuple not %s" % (type(vec),))
-            self.vec = np.array(vec)
+        if vec is None:
+            self.vec = None
+            self.shape = None
+        else:
+            if not isinstance(vec, np.ndarray):
+                if not (type(vec) == list or type(vec) == tuple):
+                    raise TypeError("Argument must be 'ndarray', list or tuple not %s" % (type(vec),))
+                self.vec = np.array(vec)
+            else:
+                self.vec = vec
 
-        if vec.shape[-1] != 3:
-            raise ValueError("Last dimension of array must be 3 not %d." % (vec.shape[-1],))
+            if self.vec.shape[-1] != 3:
+                raise ValueError("Last dimension of array must be 3 not %d." % (self.vec.shape[-1],))
 
-        self.vec = vec.astype(FLOAT)
-        self.shape = vec.shape[:-1]
+            self.vec = self.vec.astype(FLOAT)
+            self.shape = self.vec.shape[:-1]
+            for i in range(len(self.vec.shape) - 1):
+                self.vec = np.swapaxes(self.vec, i, i + 1)
 
     def __str__(self):
         return str(self.vec)
@@ -33,16 +42,16 @@ class Vectors:
     def __add__(self, vect):
         if isinstance(vect, Vectors):
             return Vectors(self.vec + vect.vec)
-        if len(vect) != 3:
-            raise ValueError("The single vector must be in 3 dimensions." % (len(vect),))
-        new = np.zeros(self.vec.shape, self.vec.dtype)
-        new[:] = self.vec[:]
-        new = np.swapaxes(new, -1, 0)
-        new[0] += vect[0]
-        new[1] += vect[1]
-        new[2] += vect[2]
-        new = np.swapaxes(new, 0, -1)
-        return Vectors(new)
+        if isinstance(vect, Vector):
+            new = Vectors(None)
+            new.vec = np.zeros(self.vec.shape, self.vec.dtype)
+            new.vec[:] = self.vec[:]
+            new.vec[0] += vect[0]
+            new.vec[1] += vect[1]
+            new.vec[2] += vect[2]
+            new.shape = new.vec.shape[1:]
+            return new
+        raise TypeError("__add__ operation undefined between 'Vectors' & %s." % (type(vect),))
 
     def __radd__(self, vect):
         return self + vect
@@ -62,11 +71,9 @@ class Vectors:
             if self.vec.shape[:-1] == vect.shape:
                 a = np.swapaxes(self.vec, -1, 0)
                 return a[0]*vect + a[1]*vect + a[2]*vect
-            if len(vect.shape) == 1 and vect.shape[0] == 3:
-                a = np.swapaxes(self.vec, -1, 0)
-                return a[0]*vect[0] + a[1]*vect[1] + a[2]*vect[2]
             raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.vec.shape[:-1]), str(vect.shape)))
-        if type(vect)
+        if isinstance(vect, Vector):
+            return self.vec[0]*vect[0] + self.vec[1]*vect[1] + self.vec[2]*vect[2]
         return Vectors(self.vec * vect)
 
     def __rmul__(self, vect):
