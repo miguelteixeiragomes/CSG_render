@@ -13,5 +13,9 @@ vs3 = Vectors(tuple(np.random.random((10, 10, 3))))
 
 print "v1: %s = (%s, %s, %s)" % (v1, v1[0], v1[1], v1[2])
 print "v2: %s = (%s, %s, %s)" % (v2, v2[-3], v2[-2], v2[-1])
-print "add:", np.allclose( (vs1 + v1).vec , np.concatenate((vs1.vec[0] + v1[0] , vs1.vec[1] + v1[1] , vs1.vec[2] + v1[2])) )
+a = np.zeros((3, 10, 10))
+a[0] = vs1.vec[0] + v1[0]
+a[1] = vs1.vec[1] + v1[1]
+a[2] = vs1.vec[2] + v1[2]
+print "add:", np.allclose( (vs1 + v1).vec , a )
 print "mul:", np.allclose(vs1 * v1 , vs1.vec[0]*v1[0] + vs1.vec[1]*v1[1] + vs1.vec[2]*v1[2])

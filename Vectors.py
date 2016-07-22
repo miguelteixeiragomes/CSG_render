@@ -24,8 +24,8 @@ class Vectors:
 
             self.vec = self.vec.astype(FLOAT)
             self.shape = self.vec.shape[:-1]
-            for i in range(len(self.vec.shape) - 1):
-                self.vec = np.swapaxes(self.vec, i, i + 1)
+            for i in range(-1, -len(self.vec.shape), -1):
+                self.vec = np.swapaxes(self.vec, i, i - 1)
 
     def __str__(self):
         return str(self.vec)

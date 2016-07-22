@@ -1,5 +1,5 @@
 import numpy as np
-#from Vector_Vectors import Vector, Vectors
+#from Vector_Vectors import Vectors
 
 
 class Vector:
@@ -51,7 +51,7 @@ class Vector:
     def __neg__(self):
         return Vector(-self.x, -self.y, -self.z)
 
-    def __add__(self, vect):
+    def __radd__(self, vect):
         return Vector(self.x + vect.x, self.y + vect.y, self.z + vect.z)
 
     def __sub__(self, vect):
