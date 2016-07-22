@@ -1,4 +1,6 @@
 import numpy as np
+from Vector import Vector
+
 
 FLOAT = np.float64
 

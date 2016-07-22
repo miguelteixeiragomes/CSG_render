@@ -1,91 +1,66 @@
 import numpy as np
-
-
-FLOAT = np.float64
+from Vectors import Vectors
 
 
 class Vector:
     def __init__(self, *args):
-        if len(args) == 1:
-            if isinstance(args[0], np.ndarray):
-                if len(args[0].shape) == 1:
-                    if args[0].shape[0] > 1:
-                        self.v = np.zeros(len(args[0]), FLOAT)
-                        self.v[:] = args[0]
-                    else:
-                        raise ValueError("Cannot initiate 'Vector' with empty array.")
-                else:
-                    raise ValueError("The input array must be unidimensional.")
-            elif isinstance(args[0], tuple) or isinstance(args[0], list):
-                self.v = np.array(args[0]).astype(FLOAT)
-            elif isnumber(args[0]):
-                self.v = np.array([args[0]]).astype(FLOAT)
-        elif len(args) > 1:
-            self.v = np.zeros(len(args), FLOAT)
-            for i in range(len(args)):
-                if isnumber(args[i]):
-                    self.v[i] = args[i]
-                else:
-                    raise TypeError("Arguments for 'Vector' must be numbers not %s." % (type(args[i]),))
+        if len(args) == 3:
+            self.x = args[0]
+            self.y = args[1]
+            self.z = args[2]
+        elif len(args) == 1:
+            try:
+                self.x = args[0][0]
+                self.y = args[0][1]
+                self.z = args[0][2]
+            except:
+                raise TypeError("The single argument must have __getitem__ method.")
         else:
-            raise AttributeError("Cannot initiate 'Vector' with zero arguments.")
-        self.dim = len(self.v)
-
-    def __len__(self):
-        return len(self.v)
+            raise AttributeError("'Vector' must be initiated with 1 or 3 arguments not %d" % (len(args),))
 
     def __str__(self):
-        s = '('
-        for i in self.v:
-            s += str(i) + ', '
-        return s[:-2] + ')'
+        return "(%s, %s, %s)" % (str(self.x), str(self.y), str(self.z))
 
     def __repr__(self):
         return str(self)
 
-    def dimMismatch(self, vect):
-        raise ValueError("Dimensional mismatch for vectors with size %d & %d." % (len(self), len(vect)))
-
     def __getitem__(self, key):
-        return self.v[key]
+        if key == 0 or key == -3:
+            return self.x
+        if key == 1 or key == -2:
+            return self.y
+        if key == 2 or key == -1:
+            return self.z
+        raise IndexError("Index %d is out of bounds for vector of size 3." % (key,))
 
     def __eq__(self, vect):
-        if isinstance(vect, Vector) and len(vect) == len(self):
-            for i in range(len(self)):
-                if self[i] != vect[i]:
-                    return False
-            return True
-        if isnumber(vect) and vect == 0:
-            return self == Vector([0]*len(self))
-        return False
+        if isinstance(vect, Vectors):
+            vect.vec = np.swapaxes(vect.vec, 0, -1)
+            ret = (vect.vec[0] == self.x) & (vect.vec[1] == self.y) & (vect.vec[2] == self.z)
+            vect.vec = np.swapaxes(vect.vec, 0, -1)
+        return self.x == vect.x and self.y == vect.y and self.z == vect.z
 
     def __ne__(self, vect):
+        if isinstance(vect, Vectors):
+            return ~(self == vect)
         return not (self == vect)
 
     def __pos__(self):
-        return Vector(self.v)
+        return Vector(self.x, self.y, self.z)
 
     def __neg__(self):
-        return Vector(-self.v)
+        return Vector(-self.x, -self.y, -self.z)
 
     def __add__(self, vect):
-        if isinstance(vect, Vector):
-            if len(self) == len(vect):
-                return Vector(self.v + vect.v)
-            self.dimMismatch(vect)
-        raise TypeError("Addition isn't defined between 'Vector' and %s" % (type(vect),))
+        return Vector(self.x + vect.x, self.y + vect.y, self.z + vect.z)
 
     def __sub__(self, vect):
         return self + -vect
 
     def __mul__(self, vect):
         if isinstance(vect, Vector):
-            if len(self) == len(vect):
-                return np.dot(self.v, vect.v)
-            self.dimMismatch(vect)
-        elif isnumber(vect):
-            return Vector(vect*self.v)
-        raise TypeError("Multiplication isn't defined between 'Vector' and %s" % (type(vect),))
+            return self.x*vect.x + self.y*vect.y + self.z*vect.z
+        return Vector(vect*self.x, vect*self.y, vect*self.z)
 
     def __rmul__(self, vect):
         return self * vect
@@ -97,18 +72,11 @@ class Vector:
         return np.sqrt(self.abs2())
 
     def __xor__(self, vect):
-        if len(self) == len(vect):
-            if len(self) == 3:
-                return Vector(np.cross(self.v, vect.v))
-            raise ValueError(
-                "The cross product can only be calculated between 2 vector in 3 dimensions not %d." % (len(self),))
-        self.dimMismatch(vect)
+        return Vector(self.y*vect.z - self.z*vect.y,
+                      self.z*vect.x - self.x*vect.z,
+                      self.x*vect.y - self.y*vect.x)
 
     def angle(self, vect):
-        if not isinstance(vect, Vector):
-            raise TypeError("Expected 'Vector' type got %s." % (type(Vector),))
-        if not self.dim == vect.dim:
-            self.dimMismatch(vect)
         return np.arccos((self*vect) / (abs(self)*abs(vect)))
 
 
