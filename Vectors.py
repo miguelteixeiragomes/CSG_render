@@ -1,12 +1,8 @@
-#from Vector_Vectors import Vector, Vectors
-from Vector import Vector
-import numpy as np
+from Vector_Vectors import np, FLOAT, Vector, Vectors
+import time
 
 
-FLOAT = np.float64
-
-
-class Vectors:
+class Vectors(Vectors):
     def __init__(self, vec):
         if vec is None:
             self.vec = None
@@ -33,6 +29,21 @@ class Vectors:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, vect):
+        if isinstance(vect, Vectors):
+            return (self.vec[0] == vect.vec[0]) & (self.vec[1] == vect.vec[1]) & (self.vec[2] == vect.vec[2])
+        if isinstance(vect, Vector):
+            return (self.vec[0] == vect[0]) & (self.vec[1] == vect[1]) & (self.vec[2] == vect[2])
+        if vect == 0:
+            return (self.vec[0] == 0) & (self.vec[1] == 0) & (self.vec[2] == 0)
+        raise TypeError("Expected 'Vector', 'Vectors' or an equivalent to 0 not %s." % (type(vect),))
+
+    def __ne__(self, vect):
+        ret = self == vect
+        if type(ret) == bool:
+            return not ret
+        return ~ret
+
     def __neg__(self):
         return Vectors(-self.vec)
 
@@ -41,10 +52,14 @@ class Vectors:
 
     def __add__(self, vect):
         if isinstance(vect, Vectors):
-            return Vectors(self.vec + vect.vec)
+            new = Vectors(None)
+            new.vec = np.zeros(self.vec.shape, FLOAT)
+            new.vec = self.vec + vect.vec
+            new.shape = new.vec.shape[1:]
+            return new
         if isinstance(vect, Vector):
             new = Vectors(None)
-            new.vec = np.zeros(self.vec.shape, self.vec.dtype)
+            new.vec = np.zeros(self.vec.shape, FLOAT)
             new.vec[:] = self.vec[:]
             new.vec[0] += vect[0]
             new.vec[1] += vect[1]
@@ -63,23 +78,37 @@ class Vectors:
         return -self + vect
 
     def __mul__(self, vect):
+        #print 'mul vectors 1'
         if isinstance(vect, Vectors):
-            a = np.swapaxes(self.vec, -1, 0)
-            b = np.swapaxes(vect.vec, -1, 0)
-            return np.swapaxes(a[0]*b[0] + a[1]*b[1] + a[2]*b[2], -1, 0)
+            #print 'mul vectors 2'
+            return self.vec[0]*vect.vec[0] + self.vec[1]*vect.vec[1] + self.vec[2]*vect.vec[2]
         if isinstance(vect, np.ndarray):
-            if self.vec.shape[:-1] == vect.shape:
-                a = np.swapaxes(self.vec, -1, 0)
-                return a[0]*vect + a[1]*vect + a[2]*vect
-            raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.vec.shape[:-1]), str(vect.shape)))
+            #print 'mul vectors 3'
+            if self.shape == vect.shape:
+                #print 'mul vectors 4'
+                new = Vectors(None)
+                new.vec = np.zeros(self.vec.shape, FLOAT)
+                new.vec[:] = self.vec[:]
+                new.vec[0] *= vect
+                new.vec[1] *= vect
+                new.vec[2] *= vect
+                new.shape = new.vec.shape[1:]
+                return new
+            raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.shape), str(vect.shape)))
         if isinstance(vect, Vector):
+            #print 'mul vectors 5'
             return self.vec[0]*vect[0] + self.vec[1]*vect[1] + self.vec[2]*vect[2]
-        return Vectors(self.vec * vect)
+        new = Vectors(None)
+        new.vec = np.zeros(self.vec.shape, FLOAT)
+        new.vec[:] = self.vec[:]
+        new.vec *= vect
+        return new
 
     def __rmul__(self, vect):
+        #print 'rmul vectors'
         return self * vect
 
-    def __xor__(self, vect):
+    def __pow__(self, vect):
         return Vectors(np.cross(self.vec, vect.vec))
 
     def abs2(self):
@@ -88,10 +117,12 @@ class Vectors:
     def __abs__(self):
         return np.sqrt(self.abs2())
 
+    def angles(self, vect):
+        if isinstance(vect, Vectors):
+            return np.arccos((self * vect) / np.sqrt(self.abs2() * vect.abs2()))
+        if isinstance(vect, Vector):
+            return np.arccos((self * vect) / np.sqrt(self.abs2() * vect.abs2()))
+        raise TypeError("Expected 'Vector' or 'Vectors' not %s." % (str(vect),))
 
-if __name__ == '__main__':
-    a = Vectors( np.array([[1., 2., 3.], [4., 5., 6.]]) )
-    b = Vectors( np.array([[1., 1., 0.], [0., 0., 1.]]) )
-    #print a*b
-    print a, '\n\n'
-    print a*b
+    def __xor__(self, vect):
+        return self.angles(vect)

@@ -5,7 +5,7 @@ import pylab as pl
 
 s = Sphere(Vector(0, 0, 0), 1)
 eye = Vector(0, 0, -2)
-screen = np.meshgrid(np.linspace(-2, 2, 201), np.linspace(-2, 2, 201))
+screen = np.meshgrid(np.linspace(-2, 2, 501), np.linspace(-2, 2, 501))
 rays = np.zeros(screen[0].shape, type(Ray(Vector(0, 0, 0), Vector(1, 0, 0))))
 for i in range(rays.shape[0]):
     print '%d/%d' % (i, rays.shape[0])
@@ -16,8 +16,9 @@ img = np.zeros(rays.shape)
 for i in range(rays.shape[0]):
     print '%d/%d' % (i, rays.shape[0])
     for j in range(rays.shape[1]):
-        intr = s.intersectionWithRay(rays[i, j])[1]
+        intr = s.intersectionWithRay(rays[i, j])[0]
         img[i, j] = 0. if intr is None else .5*np.pi - intr
 
 pl.imshow(img, cmap = 'Greys_r')
+pl.axis('off')
 pl.show()

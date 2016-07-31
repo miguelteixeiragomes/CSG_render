@@ -1,18 +1,17 @@
-import numpy as np
-#from Vector_Vectors import Vectors
+from Vector_Vectors import np, FLOAT, Vector, Vectors
 
 
-class Vector:
+class Vector(Vector):
     def __init__(self, *args):
         if len(args) == 3:
-            self.x = args[0]
-            self.y = args[1]
-            self.z = args[2]
+            self.x = FLOAT(float(args[0]))
+            self.y = FLOAT(float(args[1]))
+            self.z = FLOAT(float(args[2]))
         elif len(args) == 1:
             try:
-                self.x = args[0][0]
-                self.y = args[0][1]
-                self.z = args[0][2]
+                self.x = FLOAT(float(args[0][0]))
+                self.y = FLOAT(float(args[0][1]))
+                self.z = FLOAT(float(args[0][2]))
             except:
                 raise TypeError("The single argument must have '__getitem__' method.")
         else:
@@ -35,15 +34,18 @@ class Vector:
 
     def __eq__(self, vect):
         if isinstance(vect, Vectors):
-            vect.vec = np.swapaxes(vect.vec, 0, -1)
-            ret = (vect.vec[0] == self.x) & (vect.vec[1] == self.y) & (vect.vec[2] == self.z)
-            vect.vec = np.swapaxes(vect.vec, 0, -1)
-        return self.x == vect.x and self.y == vect.y and self.z == vect.z
+            return vect == self
+        if isinstance(vect, Vector):
+            return self.x == vect.x and self.y == vect.y and self.z == vect.z
+        if vect == 0:
+            return self.x == 0 and self.y == 0 and self.z == 0
+        raise TypeError("Expected 'Vector', 'Vectors' or an equivalent to 0 not %s." % (type(vect),))
 
     def __ne__(self, vect):
-        if isinstance(vect, Vectors):
-            return ~(self == vect)
-        return not (self == vect)
+        ret = self == vect
+        if type(ret) == bool:
+            return not ret
+        return ~ret
 
     def __pos__(self):
         return Vector(self.x, self.y, self.z)
@@ -58,11 +60,17 @@ class Vector:
         return self + -vect
 
     def __mul__(self, vect):
+        #print 'mul vector 1'
         if isinstance(vect, Vector):
+            #print 'mul vector 2'
             return self.x*vect.x + self.y*vect.y + self.z*vect.z
+        if isinstance(vect, Vectors):
+            #print 'mul vector 3'
+            return vect * self
         return Vector(vect*self.x, vect*self.y, vect*self.z)
 
     def __rmul__(self, vect):
+        #print 'rmul vector'
         return self * vect
 
     def abs2(self):
@@ -71,26 +79,17 @@ class Vector:
     def __abs__(self):
         return np.sqrt(self.abs2())
 
-    def __xor__(self, vect):
+    def __pow__(self, vect):
         return Vector(self.y*vect.z - self.z*vect.y,
                       self.z*vect.x - self.x*vect.z,
                       self.x*vect.y - self.y*vect.x)
 
     def angle(self, vect):
-        return np.arccos((self*vect) / (abs(self)*abs(vect)))
+        if isinstance(vect, Vector):
+            return np.arccos((self*vect) / (abs(self)*abs(vect)))
+        if isinstance(vect, Vectors):
+            return vect.angles(self)
+        raise TypeError("Expected 'Vector' or 'Vectors' not %s." % (str(vect),))
 
-
-if __name__ == '__main__':
-    a = Vector(1., 0., 0.)
-    b = Vector(0., 1., 0.)
-    c = Vector(0., 0., 0.)
-    print a
-    print b
-    print a*b
-    print 7*a
-    print abs(a)
-    print a^b
-    print a + b
-    print a + Vector(1., 0., 0.)
-    print a == b
-    print a == 0
+    def __xor__(self, vect):
+        return self.angle(vect)

@@ -7,12 +7,10 @@ class Rays:
             raise TypeError("Expected 'origins' to be of class 'Vectors' not %s" % (type(origins),))
         if not isinstance(origins, Vectors):
             raise TypeError("Expected 'directions' to be of class 'Vectors' not %s" % (type(directions),))
-        if origins.shape == directions.shape:
-            raise ValueError("" % (origins.shape, directions.shape))
-        directions = np.swapaxes(directions, -1, 0)
-        if np.sum((1*(directions[0] == 0)) * (1*(directions[1] == 0)) * (1*(directions[2] == 0))) > 0:
+        if origins.shape != directions.shape:
+            raise ValueError("Dimensional mismatch for shapes %s & %s." % (origins.shape, directions.shape))
+        if np.sum((1*(directions.vec[0] == 0)) * (1*(directions.vec[1] == 0)) * (1*(directions.vec[2] == 0))) > 0:
             raise ValueError("All vectors in 'directions' must be nonzero.")
-        directions = np.swapaxes(directions, -1, 0)
 
         self.origins = origins
         self.directions = directions
@@ -23,3 +21,10 @@ class Rays:
 
     def __repr__(self):
         return str(self)
+
+
+if __name__ == "__main__":
+    o = Vectors(np.array([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]))
+    d = Vectors(np.array([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]))
+    r = Rays(o, d)
+    print r
