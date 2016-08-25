@@ -2,12 +2,15 @@ from Vector import Vector
 from Vectors import Vectors
 import numpy as np
 
+
+
 v1 = Vector(np.random.random(), np.random.random(), np.random.random())
 v2 = Vector(np.random.random(3))
 v3 = Vector(list(np.random.random(3)))
 v4 = Vector(tuple(np.random.random(3)))
 
-SHAPE = [11, 12, 13, 14, 15]
+SHAPE = [5]
+scalars = np.random.random(SHAPE)
 vs1 = Vectors(np.random.random(SHAPE + [3]))
 vs2 = Vectors(list(np.random.random(SHAPE + [3])))
 vs3 = Vectors(tuple(np.random.random(SHAPE + [3])))
@@ -23,6 +26,11 @@ b[0] = vs1.vec[0] + vs2.vec[0]
 b[1] = vs1.vec[1] + vs2.vec[1]
 b[2] = vs1.vec[2] + vs2.vec[2]
 
+c = np.zeros([3] + SHAPE)
+c[0] = vs1.vec[0] * scalars
+c[1] = vs1.vec[1] * scalars
+c[2] = vs1.vec[2] * scalars
+
 
 print "       V1 + V2:", np.allclose(np.array([(v1 + v2).x, (v1 + v2).y, (v1 + v2).z]), np.array([v1.x + v2.x, v1.y + v2.y, v1.z + v2.z]))
 print "     Vs1 + Vs2:", np.allclose((vs1 + vs2).vec, b)
@@ -35,6 +43,8 @@ print "      7.0 * V1:", np.allclose(np.array([(7.*v1).x, (7.*v1).y, (7.*v1).z])
 print "     Vs1 * Vs2:", np.allclose(vs1*vs2, vs1.vec[0]*vs2.vec[0] + vs1.vec[1]*vs2.vec[1] + vs1.vec[2]*vs2.vec[2])
 print "     Vs1 * 7.0:", np.allclose((vs1*7.0).vec, vs1.vec*7.0)
 print "     7.0 * Vs1:", np.allclose((7.0*vs1).vec, vs1.vec*7.0)
+print "   Vs1 * array:", np.allclose((vs1*scalars).vec, c)
+print "   array * Vs1:", np.allclose((scalars*vs1).vec, c)
 print "      Vs1 * V1:", np.allclose(vs1 * v1, vs1.vec[0]*v1[0] + vs1.vec[1]*v1[1] + vs1.vec[2]*v1[2])
 print "      V1 * Vs1:", np.allclose(v1 * vs1, vs1.vec[0]*v1[0] + vs1.vec[1]*v1[1] + vs1.vec[2]*v1[2])
 

@@ -10,7 +10,7 @@ class Vectors(Vectors):
         else:
             if not isinstance(vec, np.ndarray):
                 if not (type(vec) == list or type(vec) == tuple):
-                    raise TypeError("Argument must be 'ndarray', list or tuple not %s" % (type(vec),))
+                    raise TypeError("Argument must be 'numpy.ndarray', list or tuple not %s" % (type(vec),))
                 self.vec = np.array(vec)
             else:
                 self.vec = vec
@@ -78,34 +78,42 @@ class Vectors(Vectors):
         return -self + vect
 
     def __mul__(self, vect):
-        #print 'mul vectors 1'
+        print 'mul vectors 1'
         if isinstance(vect, Vectors):
-            #print 'mul vectors 2'
+            print 'mul vectors 2'
             return self.vec[0]*vect.vec[0] + self.vec[1]*vect.vec[1] + self.vec[2]*vect.vec[2]
         if isinstance(vect, np.ndarray):
-            #print 'mul vectors 3'
+            print 'mul vectors 3'
             if self.shape == vect.shape:
-                #print 'mul vectors 4'
+                print 'mul vectors 4'
                 new = Vectors(None)
                 new.vec = np.zeros(self.vec.shape, FLOAT)
                 new.vec[:] = self.vec[:]
                 new.vec[0] *= vect
                 new.vec[1] *= vect
                 new.vec[2] *= vect
-                new.shape = new.vec.shape[1:]
+                new.shape = self.shape
                 return new
             raise ValueError("Dimensional mismatch for shapes %s & %s" % (str(self.shape), str(vect.shape)))
         if isinstance(vect, Vector):
-            #print 'mul vectors 5'
+            print 'mul vectors 5'
             return self.vec[0]*vect[0] + self.vec[1]*vect[1] + self.vec[2]*vect[2]
+        print 'yo1'
         new = Vectors(None)
+        print 'yo2'
         new.vec = np.zeros(self.vec.shape, FLOAT)
+        print 'yo3'
         new.vec[:] = self.vec[:]
+        print 'yo4'
         new.vec *= vect
+        print 'yo5'
+        new.shape = self.shape
+        print 'yo6'
         return new
 
     def __rmul__(self, vect):
-        #print 'rmul vectors'
+        print 'rmul vectors'
+        print "\t%s" % type(vect)
         return self * vect
 
     def __pow__(self, vect):
